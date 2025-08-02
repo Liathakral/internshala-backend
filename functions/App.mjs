@@ -30,7 +30,10 @@ mongoose.connection.once('open', async () => {
   }
 });
 app.use('/api', router);
-app.get('/', (req, res) => {
-  res.send('Server is live!');
+
+router.get('/', (req, res) => {
+  res.json({ message: 'Server is live!' });
 });
+
+app.use('/.netlify/functions/App', router);
 export const handler = serverless(app);
