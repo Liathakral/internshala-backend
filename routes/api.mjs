@@ -44,7 +44,22 @@ router.post('/signup', async (req, res) => {
 });
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+   
+        let requestBody;
+
+   
+     if (Buffer.isBuffer(req.body)) {
+      try {
+        requestBody = JSON.parse(req.body.toString('utf8'));
+      } catch (parseError) {
+        console.error('Error parsing request body buffer:', parseError);
+        return res.status(400).json({ error: 'Invalid JSON body.' });
+      }
+    } else {
+      // Assume it's already an object (e.g., parsed by express.json() in local dev)
+      requestBody = req.body;
+    }
+    const { email, password } = requestBody;
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
     const isMatch = await bcrypt.compare(password, user.password);
