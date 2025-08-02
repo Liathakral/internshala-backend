@@ -8,8 +8,24 @@ import express from 'express';
 const router = express.Router();
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    console.log('Incoming request body:', req.body);
+        let requestBody;
+
+   
+     if (Buffer.isBuffer(req.body)) {
+      try {
+        requestBody = JSON.parse(req.body.toString('utf8'));
+      } catch (parseError) {
+        console.error('Error parsing request body buffer:', parseError);
+        return res.status(400).json({ error: 'Invalid JSON body.' });
+      }
+    } else {
+      // Assume it's already an object (e.g., parsed by express.json() in local dev)
+      requestBody = req.body;
+    }
+     const { name, email, password } = requestBody;
+
+    console.log('Parsed request body:', requestBody); // Confirm it's now an object
+    console.log('Password received for hashing:', password); // Confirm password is a string
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email already exists' });
@@ -23,6 +39,7 @@ router.post('/signup', async (req, res) => {
     res.status(201).json({ message: 'User created successfully', userId: user._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
+    res.status.json({body: req.body});
   }
 });
 router.post('/login', async (req, res) => {
