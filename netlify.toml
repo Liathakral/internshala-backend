@@ -1,0 +1,8 @@
+[build]
+  functions = "functions"
+  command = "yarn install"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/App/:splat"
+  status = 200
